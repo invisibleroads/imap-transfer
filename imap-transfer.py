@@ -166,7 +166,7 @@ def parse_args():
         action='store_true',
         default=False,
         dest='incremental',
-        help='ignore last scan time and scan source mailbox fully')
+        help='walk source since latest recorded date (fast, but may skip messages)')
     return argumentParser.parse_args()
 
 
