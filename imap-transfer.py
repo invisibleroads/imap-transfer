@@ -166,7 +166,7 @@ def parse_args():
         action='store_true',
         default=False,
         dest='incremental',
-        help='walk source since latest recorded date (fast, but may skip messages)')
+        help='since last recorded date (fast but may skip messages)')
     return argumentParser.parse_args()
 
 
