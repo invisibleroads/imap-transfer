@@ -162,9 +162,9 @@ def parse_args():
         default=True,
         dest='verbose',
         help='be quiet')
-    argumentParser.add_argument('-f',
-        action='store_false',
-        default=True,
+    argumentParser.add_argument('-i',
+        action='store_true',
+        default=False,
         dest='incremental',
         help='ignore last scan time and scan source mailbox fully')
     return argumentParser.parse_args()
