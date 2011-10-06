@@ -1,0 +1,15 @@
+*~
+*.crt
+*.db
+*.db-journal
+*.egg-info
+*.log
+*.pyc
+*.swp
+.*.ini
+.coverage
+build
+data
+dist
+docs/_build
+paster.pid
