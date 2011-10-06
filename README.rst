@@ -8,9 +8,17 @@ Installation
 ::
 
     IMAP_TRANSFER_ENV=imap-transfer-env
+
+    # Prepare
     virtualenv --no-site-packages $IMAP_TRANSFER_ENV
     source $IMAP_TRANSFER_ENV/bin/activate
     pip install formencode imapIO sqlalchemy
+
+    # Download
+    git clone git://github.com/invisibleroads/imap-transfer.git $IMAP_TRANSFER_ENV/app
+
+    # Configure
+    cd $IMAP_TRANSFER_ENV/app
     cp imap-transfer.ini .imap-transfer.ini
     vim .imap-transfer.ini
 
@@ -20,4 +28,5 @@ Usage
 ::
 
     source $IMAP_TRANSFER_ENV/bin/activate
+    cd $IMAP_TRANSFER_ENV/app
     python imap-transfer.py --help
