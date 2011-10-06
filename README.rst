@@ -7,7 +7,8 @@ Installation
 ------------
 ::
 
-    IMAP_TRANSFER_ENV=imap-transfer-env
+    IMAP_TRANSFER_ENV=$HOME/Projects/imap-transfer-env
+    mkdir -p $IMAP_TRANSFER_ENV
 
     # Prepare
     virtualenv --no-site-packages $IMAP_TRANSFER_ENV
@@ -30,3 +31,10 @@ Usage
     source $IMAP_TRANSFER_ENV/bin/activate
     cd $IMAP_TRANSFER_ENV/app
     python imap-transfer.py --help
+
+
+Crontab
+-------
+::
+
+    5-59/15 * * * * IMAP_TRANSFER_ENV=$HOME/Projects/imap-transfer-env; source $IMAP_TRANSFER_ENV/bin/activate; cd $IMAP_TRANSFER_ENV/app; python imap-transfer.py -n 100 >> imap-transfer.log 2>&1

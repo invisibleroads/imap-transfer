@@ -75,9 +75,9 @@ class Application(object):
             print error
             sys.exit(1)
         try:
-            self.send_feedback('Connecting to source server')
+            self.send_feedback('Connecting to source server: %(username)s@%(host)s' % sourceParameterByKey)
             self.sourceServer = connect(sourceParameterByKey)
-            self.send_feedback('Connecting to target server')
+            self.send_feedback('Connecting to target server: %(username)s@%(host)s' % targetParameterByKey)
             self.targetServer = connect(targetParameterByKey)
         except IMAPError, error:
             print error
