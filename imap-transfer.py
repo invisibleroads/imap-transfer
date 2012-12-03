@@ -10,7 +10,7 @@ from calendar import timegm
 from ConfigParser import ConfigParser, NoSectionError, NoOptionError
 from email.utils import mktime_tz, parseaddr, parsedate_tz
 from formencode import Invalid, Schema, validators
-from imapIO import IMAP4, IMAP4_SSL, IMAPError
+from imapIO import IMAP4, IMAP4_SSL, IMAPError, normalize_folder
 from sqlalchemy import Column, Date, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -75,17 +75,17 @@ class Application(object):
             print error
             sys.exit(1)
         try:
-            self.send_feedback('Connecting to source server: %(username)s@%(host)s' % sourceParameterByKey)
+            self.send_feedback('[%(host)s] Connecting to source: %(username)s' % sourceParameterByKey)
             self.sourceServer = connect(sourceParameterByKey)
-            self.send_feedback('Connecting to target server: %(username)s@%(host)s' % targetParameterByKey)
+            self.send_feedback('[%(host)s] Connecting to target: %(username)s' % targetParameterByKey)
             self.targetServer = connect(targetParameterByKey)
         except IMAPError, error:
             print error
             sys.exit(1)
         # Prepare database
         engine = create_engine('sqlite:///%s-%s.db' % (
-            '%(username)s@%(host)s' % sourceParameterByKey, 
-            '%(username)s@%(host)s' % targetParameterByKey))
+            '%(username)s' % sourceParameterByKey,
+            '%(username)s' % targetParameterByKey))
         DB.configure(bind=engine)
         BASE.metadata.bind = engine
         BASE.metadata.create_all(engine)
@@ -148,7 +148,7 @@ def parse_args():
     argumentParser = ArgumentParser(description=DESCRIPTION)
     argumentParser.add_argument('-c',
         default=EXPAND_PATH(SCRIPT_NAME) + '.ini',
-        dest='configurationPath', 
+        dest='configurationPath',
         help='use the specified configuration file',
         metavar='PATH')
     argumentParser.add_argument('-n',
@@ -205,9 +205,9 @@ def load_parameterByKey(section, configParser):
 def connect(parameterByKey):
     IMAPClass = IMAP4_SSL if parameterByKey['ssl'] else IMAP4
     return IMAPClass.connect(
-        parameterByKey['host'], 
-        parameterByKey['port'], 
-        parameterByKey['username'], 
+        parameterByKey['host'],
+        parameterByKey['port'],
+        parameterByKey['username'],
         parameterByKey['password'])
 
 
@@ -219,9 +219,9 @@ def has(server, message):
     # Without a date, I cannot easily test for duplicates
     if not whenLocal:
         return False
-    excludes = filter(lambda x: x.startswith('"[Gmail]'), server.folders) # Exclude virtual Gmail folders
+    include = lambda _: not normalize_folder(_).startswith('[gmail]')  # Exclude virtual folders
     searchCriterion = 'FROM "%s" SENTON "%s"' % (parseaddr(messageFrom)[1], whenLocal.strftime('%d-%b-%Y'))
-    messageGenerator = server.walk(excludes=excludes, searchCriterion=searchCriterion)
+    messageGenerator = server.walk(include, searchCriterion=searchCriterion)
     for m in messageGenerator:
         if m['date'] == messageDate:
             return True
@@ -239,7 +239,7 @@ def has_record(message):
 def record(message):
     'Record the message in our database'
     DB.add(Message(
-        raw_from=message['fromWhom'][:RAW_FROM_LEN_MAX], 
+        raw_from=message['fromWhom'][:RAW_FROM_LEN_MAX],
         raw_date=message['date'][:RAW_DATE_LEN_MAX],
         date=parse_whenLocal(message).date()))
     DB.commit()
